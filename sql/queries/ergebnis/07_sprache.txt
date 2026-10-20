@@ -1,0 +1,15 @@
+-- Frage: Wie verteilen sich die Werke prozentual auf die Sprachen?
+-- Quelle: sql/queries/02_biblio.sql (@entitaet: sprache), erzeugt mit tools/run_queries.py
+
+SET
+ iso_code | bezeichnung | werke | anteil_prozent 
+----------+-------------+-------+----------------
+ de       | Deutsch     |    43 |           71.7
+ en       | Englisch    |    11 |           18.3
+ fr       | Französisch |     2 |            3.3
+ it       | Italienisch |     1 |            1.7
+ pl       | Polnisch    |     1 |            1.7
+ es       | Spanisch    |     1 |            1.7
+ tr       | Türkisch    |     1 |            1.7
+(7 rows)
+

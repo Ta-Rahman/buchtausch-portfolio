@@ -1,0 +1,52 @@
+-- Beleg: Nebenläufigkeit bei Geschäftsregel 1 mit zwei psql-Sitzungen (Phase 3)
+-- Erhoben 2026-10-14 22:24 UTC mit tools/test_nebenlaeufigkeit.sh; Zeitstempel UTC beim Eintreffen der Zeile
+
+$ bash tools/test_nebenlaeufigkeit.sh
+
+-- Vorher: Fachtabellen und Zeilen
+$ docker exec -i buchtausch-db psql -X -U buchtausch -d buchtausch -qAt    # Zählabfrage wie in sql/meta/metadaten.sql
+21 Tabellen, 1357 Zeilen
+
+-- Testexemplar wie die Fixture in 06_tests.sql (Werk 1, Person 1, max. 14 Tage)
+$ docker exec -i buchtausch-db psql -X -U buchtausch -d buchtausch -qAt -c "INSERT INTO exemplar (werk_id, besitzer_id, zustand_id, max_leihdauer_tage) VALUES (1, 1, 2, 14) RETURNING exemplar_id"
+125
+
+-- Sitzung 1 [S1] und Sitzung 2 [S2]: je ein psql-Prozess im Hintergrund, Eingabe zeilenweise aus dem Skript
+$ docker exec -i buchtausch-db psql -X -U buchtausch -d buchtausch -e -v VERBOSITY=verbose    # [S1]
+$ docker exec -i buchtausch-db psql -X -U buchtausch -d buchtausch -e -v VERBOSITY=verbose    # [S2]
+22:24:44.041 [S1] Timing is on.
+22:24:44.043 [S1] BEGIN;
+22:24:44.043 [S1] BEGIN
+22:24:44.043 [S1] Time: 0.193 ms
+22:24:44.044 [S1] INSERT INTO ausleihe (exemplar_id, ausleiher_id, zeitraum_von, zeitraum_bis, status) VALUES (125, 2, '2027-06-01', '2027-06-10', 'bestaetigt');
+22:24:44.044 [S1] INSERT 0 1
+22:24:44.044 [S1] Time: 4.957 ms
+22:24:44.738 [S2] Timing is on.
+22:24:44.739 [S2] SET lock_timeout = '3s';
+22:24:44.739 [S2] SET
+22:24:44.739 [S2] Time: 0.291 ms
+22:24:44.740 [S2] INSERT INTO ausleihe (exemplar_id, ausleiher_id, zeitraum_von, zeitraum_bis, status) VALUES (125, 3, '2027-06-05', '2027-06-12', 'bestaetigt');
+22:24:47.740 [S2] Time: 3003.308 ms (00:03.003)
+22:24:47.741 [S2] ERROR:  55P03: canceling statement due to lock timeout
+22:24:47.741 [S2] CONTEXT:  while checking exclusion constraint on tuple (1,16) in relation "ausleihe"
+22:24:47.742 [S2] LOCATION:  ProcessInterrupts, postgres.c:3387
+22:24:48.007 [S1] COMMIT;
+22:24:48.007 [S1] COMMIT
+22:24:48.007 [S1] Time: 2.008 ms
+22:24:48.224 [S2] INSERT INTO ausleihe (exemplar_id, ausleiher_id, zeitraum_von, zeitraum_bis, status) VALUES (125, 3, '2027-06-05', '2027-06-12', 'bestaetigt');
+22:24:48.225 [S2] ERROR:  23P01: conflicting key value violates exclusion constraint "excl_ausleihe_doppelbuchung"
+22:24:48.226 [S2] DETAIL:  Key (exemplar_id, daterange(zeitraum_von, zeitraum_bis, '[]'::text))=(125, [2027-06-05,2027-06-13)) conflicts with existing key (exemplar_id, daterange(zeitraum_von, zeitraum_bis, '[]'::text))=(125, [2027-06-01,2027-06-11)).
+22:24:48.226 [S2] SCHEMA NAME:  public
+22:24:48.226 [S2] TABLE NAME:  ausleihe
+22:24:48.226 [S2] CONSTRAINT NAME:  excl_ausleihe_doppelbuchung
+22:24:48.227 [S2] LOCATION:  check_exclusion_or_unique_constraint, execIndexing.c:874
+22:24:48.227 [S2] Time: 1.169 ms
+
+-- Aufräumen: Buchung aus Sitzung 1 und Testexemplar löschen
+$ docker exec -i buchtausch-db psql -X -U buchtausch -d buchtausch -c "DELETE FROM ausleihe WHERE exemplar_id = 125" -c "DELETE FROM exemplar WHERE exemplar_id = 125"
+DELETE 1
+DELETE 1
+
+-- Nachher: Fachtabellen und Zeilen
+$ docker exec -i buchtausch-db psql -X -U buchtausch -d buchtausch -qAt    # Zählabfrage wie oben
+21 Tabellen, 1357 Zeilen

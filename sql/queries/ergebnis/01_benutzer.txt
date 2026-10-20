@@ -1,0 +1,15 @@
+-- Frage: Wie viele Mitglieder sind je Quartal dazugekommen, und wie groß war die Gemeinschaft danach?
+-- Quelle: sql/queries/01_personen.sql (@entitaet: benutzer), erzeugt mit tools/run_queries.py
+
+SET
+ quartal | registrierungen | bestand_kumuliert 
+---------+-----------------+-------------------
+ 2025-Q1 |               7 |                 7
+ 2025-Q2 |               7 |                14
+ 2025-Q3 |               4 |                18
+ 2025-Q4 |               7 |                25
+ 2026-Q1 |               8 |                33
+ 2026-Q2 |               2 |                35
+ 2026-Q3 |               5 |                40
+(7 rows)
+

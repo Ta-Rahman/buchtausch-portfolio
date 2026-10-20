@@ -1,0 +1,27 @@
+ nr | regel |                           testfall                           |               erwartet               |                                ergebnis                                | bestanden
+----+-------+--------------------------------------------------------------+--------------------------------------+------------------------------------------------------------------------+-----------
+  1 | 1     | Positiv: bestätigte Ausleihe 01.–10.12.                      | angenommen                           | angenommen                                                             | t
+  2 | 1     | Positiv: überlappende Anfrage (noch keine Reservierung)      | angenommen                           | angenommen                                                             | t
+  3 | 1     | Negativ: überlappende Bestätigung 05.–12.12.                 | exclusion_violation                  | 23P01 conflicting key value violates exclusion constraint "excl_auslei | t
+  4 | 3     | Positiv: genau 14 Tage (01.–14.01.)                          | angenommen                           | angenommen                                                             | t
+  5 | 3     | Negativ: 15 Tage (01.–15.02.)                                | raise_exception „Regel 3“            | Regel 3: Leihdauer 15 Tage überschreitet das Maximum von 14 Tagen für  | t
+  6 | 4     | Positiv: angefragt → bestaetigt → laufend                    | angenommen                           | angenommen                                                             | t
+  7 | 4     | Negativ: laufend → angefragt                                 | raise_exception „Regel 4“            | Regel 4: Statusübergang laufend -> angefragt ist nicht zulässig (Ausle | t
+  8 | 4     | Positiv: laufend → verspaetet → abgeschlossen                | angenommen                           | angenommen                                                             | t
+  9 | 4     | Negativ: abgeschlossen → laufend (Endzustand)                | raise_exception „Regel 4“            | Regel 4: Statusübergang abgeschlossen -> laufend ist nicht zulässig (A | t
+ 10 | 2     | Negativ: Werkbewertung zu laufender Ausleihe                 | raise_exception „Regel 2“            | Regel 2: Werkbewertung nur nach abgeschlossener Ausleihe (Ausleihe 87  | t
+ 11 | 2     | Negativ: besitzende Person bewertet das Werk                 | raise_exception „Regel 2“            | Regel 2: Benutzer 1 ist nicht die ausleihende Person der Ausleihe 88   | t
+ 12 | 2     | Negativ: Bewertung eines fremden Werks über diese Ausleihe   | raise_exception „Regel 2“            | Regel 2: Werk 2 gehört nicht zur Ausleihe 88 (dort Werk 1)             | t
+ 13 | 2     | Positiv: ausleihende Person bewertet das Werk nach Abschluss | angenommen                           | angenommen                                                             | t
+ 14 | 2     | Negativ: unbeteiligte Person bewertet eine Partei            | raise_exception „Regel 2“            | Regel 2: Benutzer 3 darf Benutzer 1 nicht über Ausleihe 88 bewerten (P | t
+ 15 | 2     | Negativ: Selbstbewertung                                     | raise_exception oder check_violation | P0001 Regel 2: Benutzer 2 darf Benutzer 2 nicht über Ausleihe 88 bewer | t
+ 16 | 2     | Positiv: beide Parteien bewerten sich gegenseitig            | angenommen                           | angenommen                                                             | t
+ 17 | 1     | Negativ: UPDATE verschiebt 15.–20.06. auf 08.–13.06.         | excl_ausleihe_doppelbuchung          | 23P01 excl_ausleihe_doppelbuchung                                      | t
+ 18 | 3     | Negativ: UPDATE verlängert 01.–10.07. auf 15 Tage            | trg_ausleihe_leihdauer „Regel 3“     | Regel 3: Leihdauer 15 Tage überschreitet das Maximum von 14 Tagen für  | t
+ 19 | 1     | Positiv: nach Storno ist 01.–10.08. wieder buchbar           | angenommen                           | angenommen                                                             | t
+ 20 | 1     | Negativ: Beginn 10.09. = letzter Tag von 01.–10.09.          | excl_ausleihe_doppelbuchung          | 23P01 excl_ausleihe_doppelbuchung                                      | t
+ 21 | FK    | Negativ: DELETE Exemplar mit Ausleihe (RESTRICT)             | ausleihe_exemplar_id_fkey            | 23503 ausleihe_exemplar_id_fkey                                        | t
+ 22 | FK    | Positiv: DELETE Ausleihe mit Nachricht (SET NULL)            | Nachricht bleibt, ausleihe_id NULL   | 1 Nachricht mit ausleihe_id NULL                                       | t
+ 23 | FK    | Positiv: DELETE Werk ohne Exemplar (CASCADE)                 | werk_autor-Zeilen gelöscht           | werk_autor: 2 → 0 Zeilen                                               | t
+(23 rows)
+psql:/docker-entrypoint-initdb.d/06_tests.sql:377: NOTICE:  Geschäftsregel-Tests: alle 23 Fälle bestanden

@@ -1,0 +1,11 @@
+-- Frage: Welche drei Genres wurden am häufigsten tatsächlich ausgeliehen (abgeschlossene Ausleihen)?
+-- Quelle: sql/queries/02_biblio.sql (@entitaet: genre), erzeugt mit tools/run_queries.py
+
+SET
+      genre      | abgeschlossene_ausleihen 
+-----------------+--------------------------
+ Roman           |                       19
+ Kinderbuch      |                        5
+ Science-Fiction |                        4
+(3 rows)
+

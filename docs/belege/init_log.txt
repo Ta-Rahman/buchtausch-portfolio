@@ -1,0 +1,11 @@
+buchtausch-db  | /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/01_extensions.sql
+buchtausch-db  | /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/02_schema.sql
+buchtausch-db  | /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/03_indexes.sql
+buchtausch-db  | /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/04_regeln.sql
+buchtausch-db  | /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/05_seed.sql
+buchtausch-db  | /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/06_tests.sql
+buchtausch-db  | psql:/docker-entrypoint-initdb.d/06_tests.sql:377: NOTICE:  Geschäftsregel-Tests: alle 23 Fälle bestanden
+buchtausch-db  | /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/07_views.sql
+buchtausch-db  | /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/08_init_abschluss.sql
+buchtausch-db  | PostgreSQL init process complete; ready for start up.
+buchtausch-db  | 2026-10-14 22:20:50.275 UTC [1] LOG:  database system is ready to accept connections

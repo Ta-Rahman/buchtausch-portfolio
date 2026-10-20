@@ -1,0 +1,281 @@
+-- Beleg: Healthcheck mit Init-Abschluss-Marker meta.init_status (Phase 3)
+-- Erhoben am 14.10.2026, Docker Engine 28.3.2, Compose 2.39.1-desktop.1, Image buchtausch-db:16-3.4
+-- Zeitstempel in UTC (docker logs --timestamps, Health-Log, docker events).
+-- Die Befehle liefen über ein Python-Hilfsskript (subprocess, ohne Shell); Ausgaben und
+-- Rückgabewerte stammen daraus, die $-Zeilen sind die gleichwertigen Shell-Befehle.
+
+$ docker inspect --format '{{json .Config.Healthcheck}}' buchtausch-db
+{"Test": ["CMD-SHELL", "pg_isready -h localhost -U buchtausch -d buchtausch && psql -U buchtausch -d buchtausch -tAc 'SELECT 1 FROM meta.init_status WHERE abgeschlossen' | grep -qx 1"], "Interval": 5000000000, "Timeout": 5000000000, "Retries": 10}
+
+== A) Positivlauf ==
+
+$ docker compose down -v && docker compose up -d --build
+  (Build-Ausgabe gekürzt auf die Statuszeilen von Compose)
+ buchtausch-db:16-3.4  Built
+ Network buchtausch-portfolio_default  Creating
+ Network buchtausch-portfolio_default  Created
+ Volume "buchtausch-portfolio_pgdata"  Creating
+ Volume "buchtausch-portfolio_pgdata"  Created
+ Container buchtausch-db  Creating
+ Container buchtausch-db  Created
+ Container buchtausch-db  Starting
+ Container buchtausch-db  Started
+
+-- Health-Status je Sekunde abgefragt (nur Wechsel, Hostzeit):
+--   21:40:20.917  State=running  Health=starting  RestartCount=0  FailingStreak=0
+--   21:40:26.104  State=running  Health=starting  RestartCount=0  FailingStreak=1
+--   21:40:32.998  State=running  Health=healthy  RestartCount=0  FailingStreak=0
+
+$ docker logs --timestamps buchtausch-db 2>&1 | grep -E 'docker-entrypoint.sh: running|NOTICE:|ERROR:|init process complete|Skipping initialization|\[1\] LOG:  database system is ready'
+2026-10-14T21:40:24.688171002Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/01_extensions.sql
+2026-10-14T21:40:26.073123800Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/02_schema.sql
+2026-10-14T21:40:27.178577280Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/03_indexes.sql
+2026-10-14T21:40:27.610890322Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/04_regeln.sql
+2026-10-14T21:40:27.801584505Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/05_seed.sql
+2026-10-14T21:40:28.199795873Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/06_tests.sql
+2026-10-14T21:40:28.377777056Z psql:/docker-entrypoint-initdb.d/06_tests.sql:235: NOTICE:  Geschäftsregel-Tests: alle 16 Fälle bestanden
+2026-10-14T21:40:28.379485407Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/07_views.sql
+2026-10-14T21:40:28.511173347Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/08_init_abschluss.sql
+2026-10-14T21:40:30.047571293Z PostgreSQL init process complete; ready for start up.
+2026-10-14T21:40:30.147018538Z 2026-10-14 21:40:30.146 UTC [1] LOG:  database system is ready to accept connections
+
+$ docker inspect --format '{{json .State.Health}}' buchtausch-db | python -m json.tool
+  (abgefragt beim ersten Status healthy)
+{
+    "Status": "healthy",
+    "FailingStreak": 0,
+    "Log": [
+        {
+            "Start": "2026-10-14T21:40:25.677740513Z",
+            "End": "2026-10-14T21:40:25.954159795Z",
+            "ExitCode": 2,
+            "Output": "localhost:5432 - no response\n"
+        },
+        {
+            "Start": "2026-10-14T21:40:30.957278397Z",
+            "End": "2026-10-14T21:40:31.327810803Z",
+            "ExitCode": 0,
+            "Output": "localhost:5432 - accepting connections\n"
+        }
+    ]
+}
+
+$ docker exec buchtausch-db psql -U buchtausch -d buchtausch -c 'SELECT * FROM meta.init_status'
+ init_status_id | abgeschlossen | init_skripte | fachtabellen | views | trigger | constraints_fk | constraints_unique | constraints_check | constraints_exclude |       abgeschlossen_am        
+----------------+---------------+--------------+--------------+-------+---------+----------------+--------------------+-------------------+---------------------+-------------------------------
+              1 | t             |            8 |           21 |     1 |       4 |             29 |                 13 |                19 |                   1 | 2026-10-14 21:40:28.594684+00
+(1 row)
+
+$ docker exec buchtausch-db psql -U buchtausch -d buchtausch -tAc 'SELECT sum(n) FROM (SELECT count(*) AS n FROM benutzer UNION ALL … nachricht) s'
+  (Summe über die 21 Fachtabellen)
+1357
+
+-- Zeitfolge (UTC):
+--   21:40:28.594  meta.init_status.abgeschlossen_am (08_init_abschluss.sql auf dem Init-Server)
+--   21:40:30.047  PostgreSQL init process complete
+--   21:40:31.327  erste erfolgreiche Prüfung (Health-Log, End, ExitCode 0)
+
+== B) Negativlauf: ein Testfall in 06_tests.sql absichtlich verfälscht ==
+
+-- lokale, nicht committete Änderung (danach zurückgenommen, siehe unten):
+$ git diff sql/init/06_tests.sql
+diff --git a/sql/init/06_tests.sql b/sql/init/06_tests.sql
+index 7f65ccc..cc278c6 100644
+--- a/sql/init/06_tests.sql
++++ b/sql/init/06_tests.sql
+@@ -86,7 +86,7 @@ BEGIN
+ 
+     BEGIN
+         INSERT INTO ausleihe (exemplar_id, ausleiher_id, zeitraum_von, zeitraum_bis)
+-        VALUES (f.exemplar, f.ausleiher, '2027-02-01', '2027-02-15');
++        VALUES (f.exemplar, f.ausleiher, '2027-02-01', '2027-02-14');
+         INSERT INTO testergebnis (regel, testfall, erwartet, ergebnis, bestanden)
+         VALUES ('3', 'Negativ: 15 Tage (01.–15.02.)', 'raise_exception „Regel 3“', 'angenommen', FALSE);
+     EXCEPTION WHEN raise_exception THEN
+
+$ docker compose down -v && docker compose up -d --build
+  (Build-Ausgabe gekürzt auf die Statuszeilen von Compose)
+ buchtausch-db:16-3.4  Built
+ Network buchtausch-portfolio_default  Creating
+ Network buchtausch-portfolio_default  Created
+ Volume "buchtausch-portfolio_pgdata"  Creating
+ Volume "buchtausch-portfolio_pgdata"  Created
+ Container buchtausch-db  Creating
+ Container buchtausch-db  Created
+ Container buchtausch-db  Starting
+ Container buchtausch-db  Started
+
+-- Health-Status je Sekunde abgefragt (nur Wechsel, Hostzeit); healthy kommt nicht vor:
+--   21:41:15.139  State=running  Health=starting  RestartCount=0  FailingStreak=0
+--   21:41:18.498  State=running  Health=starting  RestartCount=1  FailingStreak=0
+--   21:41:24.129  State=running  Health=starting  RestartCount=1  FailingStreak=1
+--   21:41:29.648  State=running  Health=starting  RestartCount=1  FailingStreak=2
+--   21:41:34.009  State=running  Health=starting  RestartCount=1  FailingStreak=3
+--   21:41:39.667  State=running  Health=starting  RestartCount=1  FailingStreak=4
+--   21:41:44.735  State=running  Health=starting  RestartCount=1  FailingStreak=5
+--   21:41:50.509  State=running  Health=starting  RestartCount=1  FailingStreak=6
+--   21:41:56.232  State=running  Health=starting  RestartCount=1  FailingStreak=7
+--   21:42:00.750  State=running  Health=starting  RestartCount=1  FailingStreak=8
+--   21:42:06.442  State=running  Health=starting  RestartCount=1  FailingStreak=9
+--   21:42:12.175  State=running  Health=unhealthy  RestartCount=1  FailingStreak=10
+--   beobachtete Health-Werte: starting, unhealthy
+
+$ docker logs --timestamps buchtausch-db 2>&1 | grep -E 'docker-entrypoint.sh: running|NOTICE:|ERROR:|init process complete|Skipping initialization|\[1\] LOG:  database system is ready'
+2026-10-14T21:41:16.304993539Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/01_extensions.sql
+2026-10-14T21:41:16.827831341Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/02_schema.sql
+2026-10-14T21:41:17.196084385Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/03_indexes.sql
+2026-10-14T21:41:17.382304798Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/04_regeln.sql
+2026-10-14T21:41:17.437266992Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/05_seed.sql
+2026-10-14T21:41:17.555016419Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/06_tests.sql
+2026-10-14T21:41:17.614242276Z psql:/docker-entrypoint-initdb.d/06_tests.sql:235: ERROR:  Geschäftsregel-Tests: 1 von 16 Fällen NICHT bestanden
+2026-10-14T21:41:17.614245879Z 2026-10-14 21:41:17.614 UTC [71] ERROR:  Geschäftsregel-Tests: 1 von 16 Fällen NICHT bestanden
+2026-10-14T21:41:18.212600284Z PostgreSQL Database directory appears to contain a database; Skipping initialization
+2026-10-14T21:41:18.817788708Z 2026-10-14 21:41:18.817 UTC [1] LOG:  database system is ready to accept connections
+2026-10-14T21:41:23.392887728Z 2026-10-14 21:41:23.392 UTC [44] ERROR:  relation "meta.init_status" does not exist at character 15
+2026-10-14T21:41:28.600130877Z 2026-10-14 21:41:28.599 UTC [55] ERROR:  relation "meta.init_status" does not exist at character 15
+2026-10-14T21:41:33.907271393Z 2026-10-14 21:41:33.906 UTC [66] ERROR:  relation "meta.init_status" does not exist at character 15
+2026-10-14T21:41:39.005627941Z 2026-10-14 21:41:39.005 UTC [77] ERROR:  relation "meta.init_status" does not exist at character 15
+2026-10-14T21:41:44.517037478Z 2026-10-14 21:41:44.516 UTC [88] ERROR:  relation "meta.init_status" does not exist at character 15
+2026-10-14T21:41:49.838068629Z 2026-10-14 21:41:49.837 UTC [99] ERROR:  relation "meta.init_status" does not exist at character 15
+2026-10-14T21:41:55.072914357Z 2026-10-14 21:41:55.072 UTC [110] ERROR:  relation "meta.init_status" does not exist at character 15
+2026-10-14T21:42:00.355286790Z 2026-10-14 21:42:00.355 UTC [121] ERROR:  relation "meta.init_status" does not exist at character 15
+2026-10-14T21:42:05.690166577Z 2026-10-14 21:42:05.689 UTC [132] ERROR:  relation "meta.init_status" does not exist at character 15
+2026-10-14T21:42:11.065753619Z 2026-10-14 21:42:11.064 UTC [143] ERROR:  relation "meta.init_status" does not exist at character 15
+
+$ docker events --since 2026-10-14T21:41:10Z --until <Ende> --filter container=buchtausch-db --filter event=create --filter event=start --filter event=die --filter event=restart --filter event=health_status --format '{{json .}}'
+  (gekürzt auf Zeit, Aktion und exitCode; nur der neu erzeugte Container dcac3b72b339)
+21:41:14.530  create
+21:41:14.929  start
+21:41:17.944  die  exitCode=3
+21:41:18.171  start
+21:42:11.080  health_status: unhealthy
+
+$ docker inspect --format '{{.State.Status}} RestartCount={{.RestartCount}}' buchtausch-db
+running RestartCount=1
+
+$ docker inspect --format '{{json .State.Health}}' buchtausch-db | python -m json.tool
+  (abgefragt bei FailingStreak 10)
+{
+    "Status": "unhealthy",
+    "FailingStreak": 10,
+    "Log": [
+        {
+            "Start": "2026-10-14T21:41:49.526567491Z",
+            "End": "2026-10-14T21:41:49.841323713Z",
+            "ExitCode": 1,
+            "Output": "localhost:5432 - accepting connections\nERROR:  relation \"meta.init_status\" does not exist\nLINE 1: SELECT 1 FROM meta.init_status WHERE abgeschlossen\n                      ^\n"
+        },
+        {
+            "Start": "2026-10-14T21:41:54.843128756Z",
+            "End": "2026-10-14T21:41:55.078454159Z",
+            "ExitCode": 1,
+            "Output": "localhost:5432 - accepting connections\nERROR:  relation \"meta.init_status\" does not exist\nLINE 1: SELECT 1 FROM meta.init_status WHERE abgeschlossen\n                      ^\n"
+        },
+        {
+            "Start": "2026-10-14T21:42:00.079052527Z",
+            "End": "2026-10-14T21:42:00.368604898Z",
+            "ExitCode": 1,
+            "Output": "localhost:5432 - accepting connections\nERROR:  relation \"meta.init_status\" does not exist\nLINE 1: SELECT 1 FROM meta.init_status WHERE abgeschlossen\n                      ^\n"
+        },
+        {
+            "Start": "2026-10-14T21:42:05.368216644Z",
+            "End": "2026-10-14T21:42:05.699363732Z",
+            "ExitCode": 1,
+            "Output": "localhost:5432 - accepting connections\nERROR:  relation \"meta.init_status\" does not exist\nLINE 1: SELECT 1 FROM meta.init_status WHERE abgeschlossen\n                      ^\n"
+        },
+        {
+            "Start": "2026-10-14T21:42:10.701111345Z",
+            "End": "2026-10-14T21:42:11.079302815Z",
+            "ExitCode": 1,
+            "Output": "localhost:5432 - accepting connections\nERROR:  relation \"meta.init_status\" does not exist\nLINE 1: SELECT 1 FROM meta.init_status WHERE abgeschlossen\n                      ^\n"
+        }
+    ]
+}
+
+$ docker exec buchtausch-db pg_isready -h localhost -U buchtausch -d buchtausch; echo "Rückgabewert $?"
+localhost:5432 - accepting connections
+Rückgabewert 0
+
+$ docker exec buchtausch-db psql -U buchtausch -d buchtausch -tAc 'SELECT 1 FROM meta.init_status WHERE abgeschlossen'; echo "Rückgabewert $?"
+ERROR:  relation "meta.init_status" does not exist
+LINE 1: SELECT 1 FROM meta.init_status WHERE abgeschlossen
+                      ^
+Rückgabewert 1
+
+$ docker exec buchtausch-db psql -U buchtausch -d buchtausch -c "SELECT to_regclass('meta.init_status') AS marker, to_regclass('public.v_exemplar_suche') AS view_07, (SELECT count(*) FROM benutzer) AS benutzer_aus_05"
+ marker | view_07 | benutzer_aus_05 
+--------+---------+-----------------
+        |         |              40
+(1 row)
+
+-- Rücknahme der Änderung:
+$ git checkout -- sql/init/06_tests.sql && git diff --exit-code sql/init/06_tests.sql; echo "Rückgabewert $?"
+Rückgabewert 0
+
+== C) Positivlauf nach der Rücknahme (Stand des Commits) ==
+
+$ docker compose down -v && docker compose up -d --build
+  (Build-Ausgabe gekürzt auf die Statuszeilen von Compose)
+ buchtausch-db:16-3.4  Built
+ Network buchtausch-portfolio_default  Creating
+ Network buchtausch-portfolio_default  Created
+ Volume "buchtausch-portfolio_pgdata"  Creating
+ Volume "buchtausch-portfolio_pgdata"  Created
+ Container buchtausch-db  Creating
+ Container buchtausch-db  Created
+ Container buchtausch-db  Starting
+ Container buchtausch-db  Started
+
+-- Health-Status je Sekunde abgefragt (nur Wechsel, Hostzeit):
+--   21:43:04.249  State=running  Health=starting  RestartCount=0  FailingStreak=0
+--   21:43:09.424  State=running  Health=starting  RestartCount=0  FailingStreak=1
+--   21:43:14.534  State=running  Health=healthy  RestartCount=0  FailingStreak=0
+
+$ docker logs --timestamps buchtausch-db 2>&1 | grep -E 'docker-entrypoint.sh: running|NOTICE:|ERROR:|init process complete|Skipping initialization|\[1\] LOG:  database system is ready'
+2026-10-14T21:43:06.363792120Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/01_extensions.sql
+2026-10-14T21:43:07.438116712Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/02_schema.sql
+2026-10-14T21:43:08.233678630Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/03_indexes.sql
+2026-10-14T21:43:08.481024937Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/04_regeln.sql
+2026-10-14T21:43:08.572440371Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/05_seed.sql
+2026-10-14T21:43:08.811410367Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/06_tests.sql
+2026-10-14T21:43:08.947690467Z psql:/docker-entrypoint-initdb.d/06_tests.sql:235: NOTICE:  Geschäftsregel-Tests: alle 16 Fälle bestanden
+2026-10-14T21:43:08.949291993Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/07_views.sql
+2026-10-14T21:43:09.047192834Z /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/08_init_abschluss.sql
+2026-10-14T21:43:09.947629543Z PostgreSQL init process complete; ready for start up.
+2026-10-14T21:43:10.072533183Z 2026-10-14 21:43:10.072 UTC [1] LOG:  database system is ready to accept connections
+
+$ docker inspect --format '{{json .State.Health}}' buchtausch-db | python -m json.tool
+  (abgefragt beim ersten Status healthy)
+{
+    "Status": "healthy",
+    "FailingStreak": 0,
+    "Log": [
+        {
+            "Start": "2026-10-14T21:43:08.729817127Z",
+            "End": "2026-10-14T21:43:08.917395778Z",
+            "ExitCode": 2,
+            "Output": "localhost:5432 - no response\n"
+        },
+        {
+            "Start": "2026-10-14T21:43:13.917966606Z",
+            "End": "2026-10-14T21:43:14.299384327Z",
+            "ExitCode": 0,
+            "Output": "localhost:5432 - accepting connections\n"
+        }
+    ]
+}
+
+$ docker exec buchtausch-db psql -U buchtausch -d buchtausch -c 'SELECT * FROM meta.init_status'
+ init_status_id | abgeschlossen | init_skripte | fachtabellen | views | trigger | constraints_fk | constraints_unique | constraints_check | constraints_exclude |       abgeschlossen_am        
+----------------+---------------+--------------+--------------+-------+---------+----------------+--------------------+-------------------+---------------------+-------------------------------
+              1 | t             |            8 |           21 |     1 |       4 |             29 |                 13 |                19 |                   1 | 2026-10-14 21:43:09.114606+00
+(1 row)
+
+$ docker exec buchtausch-db psql -U buchtausch -d buchtausch -tAc 'SELECT sum(n) FROM (SELECT count(*) AS n FROM benutzer UNION ALL … nachricht) s'
+  (Summe über die 21 Fachtabellen)
+1357
+
+-- Zeitfolge (UTC):
+--   21:43:09.114  meta.init_status.abgeschlossen_am (08_init_abschluss.sql auf dem Init-Server)
+--   21:43:09.947  PostgreSQL init process complete
+--   21:43:14.299  erste erfolgreiche Prüfung (Health-Log, End, ExitCode 0)

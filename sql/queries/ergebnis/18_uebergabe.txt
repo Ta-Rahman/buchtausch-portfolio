@@ -1,0 +1,42 @@
+-- Frage: Wie sind Hin- und Rückweg je abgeschlossener Ausleihe gelaufen?
+-- Quelle: sql/queries/04_transaktion.sql (@entitaet: uebergabe), erzeugt mit tools/run_queries.py
+
+SET
+ ausleihe_id |         titel         | hinweg_art  |       hinweg_am        | rueckweg_art |      rueckweg_am       
+-------------+-----------------------+-------------+------------------------+--------------+------------------------
+           1 | Cien años de soledad  | Postversand | 2026-08-22 17:00:00+02 | Postversand  | 2026-08-27 11:00:00+02
+           8 | Faust                 | Abholung    | 2026-08-22 10:00:00+02 | Abholung     | 2026-09-01 09:00:00+02
+           9 | Der Steppenwolf       | Abholung    | 2026-07-30 14:00:00+02 | Abholung     | 2026-08-07 13:00:00+02
+          13 | Solaris               | Abholung    | 2026-08-17 10:00:00+02 | Abholung     | 2026-08-21 09:00:00+02
+          14 | Tschick               | Abholung    | 2026-07-12 10:00:00+02 | Abholung     | 2026-07-21 16:00:00+02
+          17 | Mord im Orientexpress | Abholung    | 2026-08-04 10:00:00+02 | Abholung     | 2026-08-24 15:00:00+02
+          19 | Kürk Mantolu Madonna  | Abholung    | 2026-07-12 16:00:00+02 | Abholung     | 2026-07-19 17:00:00+02
+          23 | Tannöd                | Abholung    | 2026-08-20 11:00:00+02 | Abholung     | 2026-09-02 20:00:00+02
+          24 | Momo                  | Abholung    | 2026-08-25 13:00:00+02 | Abholung     | 2026-08-29 19:00:00+02
+          27 | Foundation            | Postversand | 2026-07-25 19:00:00+02 | Postversand  | 2026-08-10 10:00:00+02
+          29 | Kürk Mantolu Madonna  | Abholung    | 2026-07-04 13:00:00+02 | Abholung     | 2026-07-10 10:00:00+02
+          30 | Kürk Mantolu Madonna  | Abholung    | 2026-04-01 09:00:00+02 | Abholung     | 2026-04-08 18:00:00+02
+          33 | To Kill a Mockingbird | Postversand | 2026-07-24 19:00:00+02 | Postversand  | 2026-08-05 09:00:00+02
+          34 | Er ist wieder da      | Abholung    | 2026-04-24 20:00:00+02 | Abholung     | 2026-05-05 10:00:00+02
+          37 | Die Blechtrommel      | Abholung    | 2026-08-29 12:00:00+02 | Abholung     | 2026-09-14 17:00:00+02
+          39 | Momo                  | Abholung    | 2026-08-08 20:00:00+02 | Abholung     | 2026-08-28 14:00:00+02
+          40 | Foundation            | Abholung    | 2026-03-31 09:00:00+02 | Abholung     | 2026-04-10 20:00:00+02
+          41 | Momo                  | Abholung    | 2026-08-13 17:00:00+02 | Abholung     | 2026-08-28 12:00:00+02
+          42 | Der Zauberberg        | Abholung    | 2026-05-07 17:00:00+02 | Abholung     | 2026-06-06 14:00:00+02
+          46 | Ronja Räubertochter   | Abholung    | 2026-06-28 16:00:00+02 | Abholung     | 2026-07-07 19:00:00+02
+          53 | Der Trafikant         | Abholung    | 2026-08-29 12:00:00+02 | Abholung     | 2026-09-08 19:00:00+02
+          58 | To Kill a Mockingbird | Abholung    | 2026-01-12 12:00:00+01 | Abholung     | 2026-01-19 16:00:00+01
+          60 | Ein ganzes Leben      | Postversand | 2026-08-05 19:00:00+02 | Postversand  | 2026-08-16 17:00:00+02
+          63 | Darm mit Charme       | Abholung    | 2026-09-12 09:00:00+02 | Abholung     | 2026-09-17 12:00:00+02
+          66 | Der Zauberberg        | Abholung    | 2026-08-19 10:00:00+02 | Abholung     | 2026-09-01 19:00:00+02
+          67 | Foundation            | Postversand | 2026-06-06 14:00:00+02 | Postversand  | 2026-06-19 09:00:00+02
+          68 | Altes Land            | Abholung    | 2026-05-14 17:00:00+02 | Abholung     | 2026-06-10 20:00:00+02
+          69 | Die Känguru-Chroniken | Abholung    | 2026-08-08 10:00:00+02 | Abholung     | 2026-08-13 17:00:00+02
+          75 | Kürk Mantolu Madonna  | Abholung    | 2026-08-17 17:00:00+02 | Abholung     | 2026-08-28 15:00:00+02
+          76 | Der Ernährungskompass | Abholung    | 2026-07-27 19:00:00+02 | Abholung     | 2026-08-10 20:00:00+02
+          77 | Cien años de soledad  | Abholung    | 2026-06-09 11:00:00+02 | Abholung     | 2026-06-24 17:00:00+02
+          78 | Der Vorleser          | Abholung    | 2026-05-05 17:00:00+02 | Abholung     | 2026-05-24 16:00:00+02
+          79 | Herr der Diebe        | Abholung    | 2026-07-20 17:00:00+02 | Abholung     | 2026-08-02 14:00:00+02
+          80 | Duineser Elegien      | Abholung    | 2026-07-24 20:00:00+02 | Abholung     | 2026-07-29 18:00:00+02
+(34 rows)
+

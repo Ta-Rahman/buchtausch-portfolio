@@ -1,0 +1,23 @@
+-- Frage: Welche Ausleihen laufen zum Stichtag 19.09.2026 noch oder sind überfällig, und wie viele Tage bleiben beziehungsweise fehlen?
+-- Quelle: sql/queries/04_transaktion.sql (@entitaet: ausleihe), erzeugt mit tools/run_queries.py
+
+SET
+ ausleihe_id |   status   |             titel             |     ausleiher_in     | zeitraum_von | zeitraum_bis | resttage | ueberzogen_tage 
+-------------+------------+-------------------------------+----------------------+--------------+--------------+----------+-----------------
+           2 | verspaetet | Altes Land                    | Gaby Reuter          | 2026-02-18   | 2026-03-16   |          |             187
+          43 | verspaetet | Der Schwarm                   | Florence Pechel      | 2026-07-03   | 2026-07-11   |          |              70
+          52 | laufend    | Herr der Diebe                | Gaby Reuter          | 2026-08-31   | 2026-09-19   |        0 |                
+          55 | laufend    | Der Trafikant                 | Domenico Harloff     | 2026-09-03   | 2026-09-20   |        1 |                
+          64 | laufend    | Tintenherz                    | Florence Pechel      | 2026-09-02   | 2026-09-21   |        2 |                
+          31 | laufend    | Die Vermessung der Welt       | Saskia Birnbaum      | 2026-09-11   | 2026-09-23   |        4 |                
+          32 | laufend    | To Kill a Mockingbird         | Suse Weitzel         | 2026-09-13   | 2026-09-23   |        4 |                
+          38 | laufend    | Maus                          | Niels Jäkel          | 2026-09-06   | 2026-09-24   |        5 |                
+          45 | laufend    | Die Leiden des jungen Werther | Domenico Harloff     | 2026-09-12   | 2026-10-01   |       12 |                
+          72 | laufend    | Il nome della rosa            | Hilda Löchel         | 2026-09-16   | 2026-10-01   |       12 |                
+          20 | laufend    | Das Parfum                    | Juan Bolzmann        | 2026-09-14   | 2026-10-04   |       15 |                
+          10 | laufend    | Ich bin dann mal weg          | Stanislaw Säuberlich | 2026-09-01   | 2026-10-07   |       18 |                
+          16 | laufend    | Die Schlafwandler             | Niels Jäkel          | 2026-09-04   | 2026-10-08   |       19 |                
+          28 | laufend    | Persepolis                    | Suse Weitzel         | 2026-09-12   | 2026-10-08   |       19 |                
+          54 | laufend    | 1984                          | Peter-Michael Wiek   | 2026-09-09   | 2026-10-12   |       23 |                
+(15 rows)
+

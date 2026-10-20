@@ -1,0 +1,20 @@
+-- Frage: Wie viele Werke und Exemplare entfallen auf jeden Verlag, auch auf Verlage ohne Exemplar?
+-- Quelle: sql/queries/02_biblio.sql (@entitaet: verlag), erzeugt mit tools/run_queries.py
+
+SET
+ verlag_id |         name         |       sitz        | werke | exemplare 
+-----------+----------------------+-------------------+-------+-----------
+        11 | Penguin Books        | London            |    11 |        20
+         2 | S. Fischer           | Frankfurt am Main |     8 |        19
+         8 | Diogenes             | Zürich            |     7 |        14
+         6 | Carlsen              | Hamburg           |     5 |        14
+         5 | Hanser               | München           |     5 |        12
+         7 | Piper                | München           |     6 |        10
+        10 | Ullstein             | Berlin            |     6 |         8
+         3 | dtv                  | München           |     5 |         8
+         4 | Rowohlt              | Hamburg           |     3 |         8
+         1 | Suhrkamp             | Berlin            |     3 |         5
+         9 | Kiepenheuer & Witsch | Köln              |     1 |         2
+        12 | Beltz & Gelberg      | Weinheim          |     0 |         0
+(12 rows)
+

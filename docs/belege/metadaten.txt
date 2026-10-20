@@ -1,0 +1,138 @@
+ datenbank  |           postgresql           | postgis |       erhoben_am       |         laufabhaengig          
+------------+--------------------------------+---------+------------------------+--------------------------------
+ buchtausch | 16.4 (Debian 16.4-1.pgdg110+2) | 3.4.3   | 2026-10-14 23:46:28+02 | erhoben_am, *_groesse, *_bytes
+(1 row)
+
+ datenbank_groesse | datenbank_bytes 
+-------------------+-----------------
+ 18 MB             |        18551267
+(1 row)
+
+ schema | tabellen | zeilen | gesamt_groesse | gesamt_bytes 
+--------+----------+--------+----------------+--------------
+ public |       21 |   1357 | 1424 kB        |      1458176
+ meta   |        1 |      1 | 24 kB          |        24576
+(2 rows)
+
+ schema |     tabelle      | zeilen | gesamt_groesse | gesamt_bytes | tabelle_groesse | tabelle_bytes | indizes_groesse | indizes_bytes 
+--------+------------------+--------+----------------+--------------+-----------------+---------------+-----------------+---------------
+ public | benutzer         |     40 | 40 kB          |        40960 | 8192 bytes      |          8192 | 32 kB           |         32768
+ public | adresse          |     40 | 56 kB          |        57344 | 8192 bytes      |          8192 | 40 kB           |         40960
+ public | rolle            |      3 | 40 kB          |        40960 | 8192 bytes      |          8192 | 32 kB           |         32768
+ public | benutzer_rolle   |     44 | 40 kB          |        40960 | 8192 bytes      |          8192 | 32 kB           |         32768
+ public | autor            |     59 | 96 kB          |        98304 | 8192 bytes      |          8192 | 88 kB           |         90112
+ public | verlag           |     12 | 40 kB          |        40960 | 8192 bytes      |          8192 | 32 kB           |         32768
+ public | sprache          |     12 | 40 kB          |        40960 | 8192 bytes      |          8192 | 32 kB           |         32768
+ public | genre            |     12 | 40 kB          |        40960 | 8192 bytes      |          8192 | 32 kB           |         32768
+ public | werk             |     60 | 168 kB         |       172032 | 8192 bytes      |          8192 | 160 kB          |        163840
+ public | werk_autor       |     74 | 40 kB          |        40960 | 8192 bytes      |          8192 | 32 kB           |         32768
+ public | werk_genre       |     73 | 40 kB          |        40960 | 8192 bytes      |          8192 | 32 kB           |         32768
+ public | zustand          |      5 | 40 kB          |        40960 | 8192 bytes      |          8192 | 32 kB           |         32768
+ public | exemplar         |    120 | 120 kB         |       122880 | 16 kB           |         16384 | 80 kB           |         81920
+ public | zeitslot         |    231 | 80 kB          |        81920 | 16 kB           |         16384 | 40 kB           |         40960
+ public | uebergabeart     |      2 | 40 kB          |        40960 | 8192 bytes      |          8192 | 32 kB           |         32768
+ public | verfuegbarkeit   |    181 | 72 kB          |        73728 | 8192 bytes      |          8192 | 64 kB           |         65536
+ public | ausleihe         |     80 | 64 kB          |        65536 | 8192 bytes      |          8192 | 56 kB           |         57344
+ public | uebergabe        |     91 | 72 kB          |        73728 | 8192 bytes      |          8192 | 64 kB           |         65536
+ public | bewertung_werk   |     23 | 80 kB          |        81920 | 8192 bytes      |          8192 | 64 kB           |         65536
+ public | bewertung_person |     36 | 80 kB          |        81920 | 8192 bytes      |          8192 | 64 kB           |         65536
+ public | nachricht        |    159 | 136 kB         |       139264 | 24 kB           |         24576 | 80 kB           |         81920
+ meta   | init_status      |      1 | 24 kB          |        24576 | 8192 bytes      |          8192 | 16 kB           |         16384
+(22 rows)
+
+ schema |     tabelle      |               index                | zugriffsmethode |  groesse   | bytes 
+--------+------------------+------------------------------------+-----------------+------------+-------
+ public | benutzer         | benutzer_email_key                 | btree           | 16 kB      | 16384
+ public | benutzer         | benutzer_pkey                      | btree           | 16 kB      | 16384
+ public | adresse          | adresse_benutzer_id_key            | btree           | 16 kB      | 16384
+ public | adresse          | adresse_pkey                       | btree           | 16 kB      | 16384
+ public | adresse          | idx_adresse_position               | gist            | 8192 bytes |  8192
+ public | rolle            | rolle_bezeichnung_key              | btree           | 16 kB      | 16384
+ public | rolle            | rolle_pkey                         | btree           | 16 kB      | 16384
+ public | benutzer_rolle   | benutzer_rolle_pkey                | btree           | 16 kB      | 16384
+ public | benutzer_rolle   | idx_benutzer_rolle_rolle_id        | btree           | 16 kB      | 16384
+ public | autor            | autor_pkey                         | btree           | 16 kB      | 16384
+ public | autor            | idx_autor_nachname_trgm            | gin             | 48 kB      | 49152
+ public | verlag           | verlag_name_key                    | btree           | 16 kB      | 16384
+ public | verlag           | verlag_pkey                        | btree           | 16 kB      | 16384
+ public | sprache          | sprache_iso_code_key               | btree           | 16 kB      | 16384
+ public | sprache          | sprache_pkey                       | btree           | 16 kB      | 16384
+ public | genre            | genre_bezeichnung_key              | btree           | 16 kB      | 16384
+ public | genre            | genre_pkey                         | btree           | 16 kB      | 16384
+ public | werk             | idx_werk_sprache_id                | btree           | 16 kB      | 16384
+ public | werk             | idx_werk_titel_trgm                | gin             | 72 kB      | 73728
+ public | werk             | idx_werk_verlag_id                 | btree           | 16 kB      | 16384
+ public | werk             | werk_isbn13_key                    | btree           | 16 kB      | 16384
+ public | werk             | werk_pkey                          | btree           | 16 kB      | 16384
+ public | werk_autor       | idx_werk_autor_autor_id            | btree           | 16 kB      | 16384
+ public | werk_autor       | werk_autor_pkey                    | btree           | 16 kB      | 16384
+ public | werk_genre       | idx_werk_genre_genre_id            | btree           | 16 kB      | 16384
+ public | werk_genre       | werk_genre_pkey                    | btree           | 16 kB      | 16384
+ public | zustand          | zustand_pkey                       | btree           | 16 kB      | 16384
+ public | zustand          | zustand_stufe_key                  | btree           | 16 kB      | 16384
+ public | exemplar         | exemplar_pkey                      | btree           | 16 kB      | 16384
+ public | exemplar         | idx_exemplar_besitzer_id           | btree           | 16 kB      | 16384
+ public | exemplar         | idx_exemplar_verfuegbar            | btree           | 16 kB      | 16384
+ public | exemplar         | idx_exemplar_werk_id               | btree           | 16 kB      | 16384
+ public | exemplar         | idx_exemplar_zustand_id            | btree           | 16 kB      | 16384
+ public | zeitslot         | idx_zeitslot_zeitraum              | gist            | 24 kB      | 24576
+ public | zeitslot         | zeitslot_pkey                      | btree           | 16 kB      | 16384
+ public | uebergabeart     | uebergabeart_bezeichnung_key       | btree           | 16 kB      | 16384
+ public | uebergabeart     | uebergabeart_pkey                  | btree           | 16 kB      | 16384
+ public | verfuegbarkeit   | idx_verfuegbarkeit_uebergabeart_id | btree           | 16 kB      | 16384
+ public | verfuegbarkeit   | idx_verfuegbarkeit_zeitslot_id     | btree           | 16 kB      | 16384
+ public | verfuegbarkeit   | uq_verfuegbarkeit                  | btree           | 16 kB      | 16384
+ public | verfuegbarkeit   | verfuegbarkeit_pkey                | btree           | 16 kB      | 16384
+ public | ausleihe         | ausleihe_pkey                      | btree           | 16 kB      | 16384
+ public | ausleihe         | excl_ausleihe_doppelbuchung        | gist            | 8192 bytes |  8192
+ public | ausleihe         | idx_ausleihe_ausleiher_id          | btree           | 16 kB      | 16384
+ public | ausleihe         | idx_ausleihe_exemplar_status       | btree           | 16 kB      | 16384
+ public | uebergabe        | idx_uebergabe_uebergabeart_id      | btree           | 16 kB      | 16384
+ public | uebergabe        | idx_uebergabe_zeitslot_id          | btree           | 16 kB      | 16384
+ public | uebergabe        | uebergabe_pkey                     | btree           | 16 kB      | 16384
+ public | uebergabe        | uq_uebergabe_richtung              | btree           | 16 kB      | 16384
+ public | bewertung_werk   | bewertung_werk_ausleihe_id_key     | btree           | 16 kB      | 16384
+ public | bewertung_werk   | bewertung_werk_pkey                | btree           | 16 kB      | 16384
+ public | bewertung_werk   | idx_bewertung_werk_verfasser_id    | btree           | 16 kB      | 16384
+ public | bewertung_werk   | idx_bewertung_werk_werk_id         | btree           | 16 kB      | 16384
+ public | bewertung_person | bewertung_person_pkey              | btree           | 16 kB      | 16384
+ public | bewertung_person | idx_bewertung_person_ausleihe_id   | btree           | 16 kB      | 16384
+ public | bewertung_person | idx_bewertung_person_bewerteter_id | btree           | 16 kB      | 16384
+ public | bewertung_person | uq_bewertung_person                | btree           | 16 kB      | 16384
+ public | nachricht        | idx_nachricht_absender_id          | btree           | 16 kB      | 16384
+ public | nachricht        | idx_nachricht_ausleihe_id          | btree           | 16 kB      | 16384
+ public | nachricht        | idx_nachricht_empfaenger_id        | btree           | 16 kB      | 16384
+ public | nachricht        | idx_nachricht_ungelesen            | btree           | 16 kB      | 16384
+ public | nachricht        | nachricht_pkey                     | btree           | 16 kB      | 16384
+ meta   | init_status      | init_status_pkey                   | btree           | 16 kB      | 16384
+(63 rows)
+
+   objektart   | anzahl 
+---------------+--------
+ Tabellen      |     22
+ Views         |      1
+ Indizes       |     63
+ PRIMARY KEY   |     22
+ FOREIGN KEY   |     29
+ UNIQUE        |     13
+ CHECK         |     20
+ EXCLUDE       |      1
+ Trigger       |      4
+ Erweiterungen |      4
+(10 rows)
+
+ erweiterung | version |   schema   
+-------------+---------+------------
+ btree_gist  | 1.7     | public
+ pg_trgm     | 1.6     | public
+ plpgsql     | 1.0     | pg_catalog
+ postgis     | 3.4.3   | public
+(4 rows)
+
+ schema |      objekt       |   art   | erweiterung | zeilen | gesamt_groesse | gesamt_bytes 
+--------+-------------------+---------+-------------+--------+----------------+--------------
+ public | spatial_ref_sys   | Tabelle | postgis     |   8500 | 7144 kB        |      7315456
+ public | geography_columns | View    | postgis     |        | 0 bytes        |            0
+ public | geometry_columns  | View    | postgis     |        | 0 bytes        |            0
+(3 rows)
+

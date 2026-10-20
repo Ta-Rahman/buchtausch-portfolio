@@ -1,0 +1,10 @@
+-- Frage: Findet die Titelsuche das Werk auch bei Tippfehlern ("Stepenwolf", "Kanguru-Chroniken")?
+-- Quelle: sql/queries/02_biblio.sql (@entitaet: werk), erzeugt mit tools/run_queries.py
+
+SET
+    suchbegriff    | werk_id |         titel         | aehnlichkeit 
+-------------------+---------+-----------------------+--------------
+ Kanguru-Chroniken |      18 | Die Känguru-Chroniken |        0.600
+ Stepenwolf        |       1 | Der Steppenwolf       |        0.588
+(2 rows)
+

@@ -1,0 +1,37 @@
+-- Frage: Welche Mitglieder wohnen im Umkreis von 1,5 km um Mitglied 1, nach Entfernung sortiert?
+-- Quelle: sql/queries/01_personen.sql (@entitaet: adresse), erzeugt mit tools/run_queries.py
+
+SET
+ benutzer_id |       mitglied        |          strasse          | hausnummer |  plz  | entfernung_m 
+-------------+-----------------------+---------------------------+------------+-------+--------------
+          12 | Raymond Kranz         | Kettenhofweg              | 43b        | 60325 |          393
+          36 | Niels Jäkel           | Kaiserstraße              | 4a         | 60329 |          766
+           8 | Antoinette Vollbrecht | Grüneburgweg              | 19         | 60323 |          861
+          17 | Walentina Hahn        | Adalbertstraße            | 63b        | 60486 |          863
+          31 | Marit Hofmann         | Mainzer Landstraße        | 87a        | 60329 |          910
+           9 | Juan Bolzmann         | Große Eschenheimer Straße | 39a        | 60313 |         1018
+           2 | Domenico Harloff      | Kiesstraße                | 72b        | 60486 |         1204
+          23 | Abram Krebs           | Frankenallee              | 53a        | 60327 |         1316
+          15 | Leyla Radisch         | Jordanstraße              | 89         | 60486 |         1374
+          30 | Saskia Birnbaum       | Leipziger Straße          | 83b        | 60487 |         1377
+           6 | Grete Hethur          | Oeder Weg                 | 32b        | 60318 |         1435
+(11 rows)
+
+BEGIN
+SET
+                                                              QUERY PLAN                                                               
+---------------------------------------------------------------------------------------------------------------------------------------
+ Sort
+   Sort Key: ((round(st_distance(a."position", m."position", true)))::integer)
+   ->  Nested Loop
+         ->  Nested Loop
+               ->  Index Scan using adresse_benutzer_id_key on adresse m
+                     Index Cond: (benutzer_id = 1)
+               ->  Index Scan using idx_adresse_position on adresse a
+                     Index Cond: ("position" && _st_expand(m."position", '1500'::double precision))
+                     Filter: ((benutzer_id <> m.benutzer_id) AND st_dwithin("position", m."position", '1500'::double precision, true))
+         ->  Index Scan using benutzer_pkey on benutzer b
+               Index Cond: (benutzer_id = a.benutzer_id)
+(11 rows)
+
+ROLLBACK

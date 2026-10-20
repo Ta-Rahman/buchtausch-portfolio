@@ -1,0 +1,38 @@
+-- ===================================================================
+-- Umkreissuche MIT GiST-Index idx_adresse_perf_position.
+-- Identische Abfrage und identische Daten wie in 01a — einziger
+-- Unterschied ist der Index. Aufgezeichnet ist der ZWEITE Lauf
+-- (warmer Cache). Serverkonfiguration unverändert.
+-- Einzige Abweichung von der Standardkonfiguration: JIT ist für die
+-- Messung abgeschaltet (SET jit = off), damit die Zeit den Scan gegen
+-- den Index vergleicht und nicht das Übersetzen in Maschinencode.
+-- Messrechner: Intel Core Ultra 9 185H, 31 GB RAM, Docker Desktop 28.3.2, Windows 11, Container postgis/postgis:16-3.4
+-- ===================================================================
+                                                         postgresql                                                          | postgis |          gemessen_am          
+-----------------------------------------------------------------------------------------------------------------------------+---------+-------------------------------
+ PostgreSQL 16.4 (Debian 16.4-1.pgdg110+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit | 3.4.3   | 2026-09-19 12:38:39.575434+00
+(1 row)
+
+ tabelle | indexgroesse 
+---------+--------------
+ 21 MB   | 14 MB
+(1 row)
+
+                                                                    QUERY PLAN                                                                     
+---------------------------------------------------------------------------------------------------------------------------------------------------
+ Gather  (cost=2080.52..189316.17 rows=20 width=43) (actual time=3.217..27.228 rows=14701 loops=1)
+   Workers Planned: 1
+   Workers Launched: 1
+   Buffers: shared hit=3353
+   ->  Parallel Bitmap Heap Scan on adresse_perf  (cost=1080.52..188314.17 rows=12 width=43) (actual time=5.101..17.609 rows=7350 loops=2)
+         Filter: st_dwithin("position", '0101000020E61000001F85EB51B85E21400000000000104940'::geography, '1500'::double precision, true)
+         Rows Removed by Filter: 5092
+         Heap Blocks: exact=2149
+         Buffers: shared hit=3353
+         ->  Bitmap Index Scan on idx_adresse_perf_position  (cost=0.00..1080.52 rows=25081 width=0) (actual time=2.663..2.664 rows=24886 loops=1)
+               Index Cond: ("position" && _st_expand('0101000020E61000001F85EB51B85E21400000000000104940'::geography, '1500'::double precision))
+               Buffers: shared hit=285
+ Planning Time: 0.711 ms
+ Execution Time: 27.805 ms
+(14 rows)
+

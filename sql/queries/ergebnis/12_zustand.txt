@@ -1,0 +1,13 @@
+-- Frage: Wie verteilen sich die Exemplare über die fünf Zustandsstufen?
+-- Quelle: sql/queries/03_besitz.sql (@entitaet: zustand), erzeugt mit tools/run_queries.py
+
+SET
+ stufe |   bezeichnung   | exemplare | anteil_prozent |          balken           
+-------+-----------------+-----------+----------------+---------------------------
+     1 | neuwertig       |        13 |           10.8 | ######
+     2 | sehr gut        |        51 |           42.5 | #########################
+     3 | gut             |        30 |           25.0 | ###############
+     4 | gebraucht       |        18 |           15.0 | #########
+     5 | stark abgenutzt |         8 |            6.7 | ####
+(5 rows)
+

@@ -1,0 +1,12 @@
+-- Frage: Welche Werke mit mindestens zwei Bewertungen stehen am besten da?
+-- Quelle: sql/queries/05_community.sql (@entitaet: bewertung_werk), erzeugt mit tools/run_queries.py
+
+SET
+ rang | werk_id |        titel         | bewertungen | schnitt 
+------+---------+----------------------+-------------+---------
+    1 |      11 | Der Zauberberg       |           2 |    5.00
+    2 |      59 | Kürk Mantolu Madonna |           3 |    4.00
+    3 |      57 | Cien años de soledad |           2 |    3.50
+    3 |       7 | Momo                 |           2 |    3.50
+(4 rows)
+

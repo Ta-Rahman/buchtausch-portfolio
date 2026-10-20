@@ -1,0 +1,59 @@
+{
+  "_hinweis": "Alle Folientexte der Phase 2. Schreibt Tanzin. Leere Strings/Listen erscheinen im Deck als orange Platzhalter. Die 21 Ein-Satz-Erklärungen je Entität stehen NICHT hier, sondern als @erklaerung im Kopfblock der jeweiligen Abfrage in sql/queries/*.sql.",
+  "titel": {
+    "name": "Tanzin Aonkon Rahman",
+    "matrikel": "",
+    "datum": "13.10.2026"
+  },
+  "ausgangslage": [
+    "Wie gefordert werden vier Regeln auf Datenbankebene jeweils mit Negativtests belegt. Regel 1 wird durch den EXCLUDE-Constraint und Regeln 2–4 werden durch Trigger gelöst. Der Nachweis erfolgt durch 16 Positiv-/Negativtests, die bei jedem Containerstart laufen und den Start abbrechen, wenn eine Regel verletzt ist.",
+    "Es wird gefordert, dass die Reproduzierbarkeit mit Docker Compose demonstriert wird. Daher wird ein Image mit einer integrierten Init-Kette mit sieben Skripten aufgebaut und ein Befehl für den frischen Start (docker compose down -v; docker compose up -d --build) wird ausgeführt. Der Log zeigt die sieben Skripte und die Zeile „alle 16 Fälle bestanden“, um das zu überprüfen. Seed mit festem Zufallswert und Stichtag → identische 1.357 Zeilen bei jedem Start.",
+    "Es wird gefordert, dass die Indizes begründet werden und die Performance soll demonstriert werden. Das wird durch EXPLAIN ANALYZE von derselben Abfrage (einmal mit und einmal ohne Index) auf 200.000 Demo-Zeilen (Umkreissuche GiST, Titelsuche GIN/pg_trgm) gezeigt. Gemessen wird im zweiten Lauf mit warmem Cache und JIT aus (Faktoren 3,9× und 21,3×)."
+  ],
+  "erm": "Das Modell bleibt seit Phase 1 unverändert, da keine Änderungen vom Feedback verlangt worden sind. Der Kern ist die Trennung zwischen einem Werk (bibliografische Einheit) und einem Exemplar (physisches Buch).",
+  "werkzeugkette": [
+    "model.py ist die einzige Quelle; die Artefakte werden daraus erzeugt und können nicht auseinanderlaufen (ER-Diagramm, Datenwörterbuch, Schema, Indizes und Seed). Was aber handgeschrieben anstatt generiert ist, sind die vier Trigger, die Tests, die View, Extensions, die 21 Abfragen (fachliche Logik, keine Ableitung aus dem Modell)."
+  ],
+  "reproduzierbarkeit": [
+    "Durch das Dockerfile werden die sieben Init-Skripte beim Bauen ins Image kopiert. Der Ablauf läuft auf jedem Rechner gleich, da die Skripte im Image liegen und nicht per Bind-Mount. Im Log können die sieben running-Zeilen, danach die NOTICE … alle 16 Fälle bestanden und zum Schluss init process complete gesehen werden. Es wird erst healthy gemeldet, wenn die Kette durch ist, weil der Healthcheck über TCP prüft. Die Daten sind identisch, da ein fester Zufalls-Seed (42) und ein fester Stichtag (19.09.2026) genutzt wird und bei jedem Start exakt 1.357 Zeilen in denselben Verteilungen entstehen."
+  ],
+  "regeln": {
+    "1": [
+      "Um das Double-Booking zu verhindern, reicht ein EXCLUDE (deklarativ und nicht als Trigger), da die Regel nur Zeilen aus derselben Tabelle (ausleihe) betrifft, also prüft die Datenbank es selbst ohne Programmcode. Es wird nach gleicher exemplar_id und überlappendem Zeitraum (daterange … '[]', beide Randtage belegt) geprüft. Der Negativtest wird über eine bestätigte Ausleihe im Zeitraum 01.–10.12. und dann eine zweite überlappende Ausleihe, 05.–12.12., auf dasselbe Exemplar gemacht und der Fehler 23P01 exclusion_violation erwartet. Eine Anfrage im selben Zeitraum (Test 2) geht durch (Constraint gilt nur für reservierende Status)."
+    ],
+    "2": [
+      "Die zweite Regel ist ein Trigger, da drei Tabellen (Bewertung, Ausleihe, Exemplar) beteiligt sind und ein CHECK nur seine eigene Zeile sieht. Im Negativtest ist der Fall, dass eine Person, die das Werk besitzt, das Werk bewertet und dann zu erwarten ist, dass der Fehler „Benutzer 1 ist nicht die ausleihende Person der Ausleihe“ geworfen wird."
+    ],
+    "3": [
+      "Die dritte Regel ist auch ein Trigger, da zwei Tabellen beteiligt sind, da der Maximalwert am Exemplar und der Zeitraum an der Ausleihe steht. Die Leihdauer zählt die Randtage mit, passend zum EXCLUDE. Im Negativtest werden 15 Tage angegeben bei einem Maximum von 14 Tagen und die Benachrichtigung „Leihdauer 15 Tage überschreitet das Maximum von 14 Tagen“ wird erwartet."
+    ],
+    "4": [
+      "Die vierte Regel ist ein Trigger, in dem die erlaubten Übergänge eine feste Menge im Code sind und der nur bei UPDATE greift, deshalb können historische Ausleihen im Endzustand aus den Seed-Daten angelegt werden. Im Negativtest wird versucht, vom Status „laufend“ zu „angefragt“ zu gehen und es wird der Fehler „Statusübergang laufend -> angefragt ist nicht zulässig“ erwartet."
+    ]
+  },
+  "tests_uebersicht": "Es werden 16 Fälle gezeigt, 6 davon positiv und 10 negativ, welche bei jedem Containerstart laufen. Am Ende wird ein Rollback gemacht und die Datenbank bleibt dann im Seed-Zustand. Ein nicht bestandener Fall würde den Start verhindern.",
+  "performance": {
+    "umkreis": [
+      "Die Performance wird mit den Parametern (Umkreisabfrage, 1.500 m) und (200.000 Demo-Adressen) einmal mit und einmal ohne GiST-Index gemessen. Ohne Index werden sequenziell parallel alle Zeilen geprüft, 92.650 je Worker verworfen. Mit Index (Bitmap Index Scan) werden nur Kandidaten aus dem Index mit anschließender Nachprüfung geprüft. Der Faktor kann ehrlich wegen des gleichen Laufs, warmen Caches und JIT aus beschrieben werden."
+    ],
+    "trigram": [
+      "Die Titelsuche wird gemessen (ILIKE '%Turm und Spiegel%' auf 200.000 generierten Titeln), einmal mit, einmal ohne GIN-Index. Ohne Index erfolgt ein sequenzieller Scan über alle Zeilen, da ein B-Baum nicht hilft, und mit Index ein Bitmap Index Scan über Trigramme (522 Treffer). Die Messbedingungen sind wie bei der Umkreissuche."
+    ]
+  },
+  "zusammenfassung": [
+    "Buchtausch-App: Es gibt 21 Entitäten, eine PostgreSQL-16-Datenbank mit PostGIS, und die jetzige Phase (Phase 2) ist die Implementierung. Das Modell bleibt seit Phase 1 unverändert, da keine Änderungen vom Feedback verlangt worden sind. Der Kern ist die Trennung zwischen einem Werk (bibliografische Einheit) und einem Exemplar (physisches Buch).",
+    "model.py ist die einzige Quelle; die Artefakte werden daraus erzeugt und können nicht auseinanderlaufen (ER-Diagramm, Datenwörterbuch, Schema, Indizes und Seed). Was aber handgeschrieben anstatt generiert ist, sind die vier Trigger, die Tests, die View, Extensions, die 21 Abfragen (fachliche Logik, keine Ableitung aus dem Modell).",
+    "Wie gefordert werden vier Regeln auf Datenbankebene jeweils mit Negativtests belegt. Regel 1 wird durch den EXCLUDE-Constraint und Regeln 2–4 werden durch Trigger gelöst, da dort mehrere Tabellen beteiligt sind und ein CHECK nur seine eigene Zeile sieht. Der Nachweis erfolgt durch 16 Positiv-/Negativtests, die bei jedem Containerstart laufen und den Start abbrechen, wenn eine Regel verletzt ist.",
+    "Es wird ein Seed mit einem festen Zufallswert und einem Stichtag erzeugt (Adressen in Frankfurt am Main, echte Werke, fiktive Personen, 1.357 Zeilen in 21 Tabellen), darum sind bei jedem Start identische 1.357 Zeilen vorhanden. Rolle, Übergabeart und Zustand sind Stammdaten mit fachlich begrenzter Wertemenge, darum ist die Anzahl dort bewusst kleiner als 10 gewählt.",
+    "Es wird gefordert, dass die Indizes begründet werden und die Performance soll demonstriert werden. Das wird durch EXPLAIN ANALYZE von derselben Abfrage (einmal mit und einmal ohne Index) auf 200.000 Demo-Zeilen (Umkreissuche GiST, Titelsuche GIN/pg_trgm) gezeigt. Gemessen wird im zweiten Lauf mit warmem Cache und JIT aus (Faktoren 3,9× und 21,3×). Es existiert je eine Fachabfrage für die 21 Entitäten mit einem Ergebnisbeleg. Die View (v_exemplar_suche) kapselt die Umkreissuche zur Wiederverwendbarkeit.",
+    "Durch das Dockerfile werden die sieben Init-Skripte beim Bauen ins Image kopiert. Der Ablauf läuft auf jedem Rechner gleich, da die Skripte im Image liegen und nicht per Bind-Mount. Es werden 16 Fälle gezeigt, 6 davon positiv und 10 negativ. Am Ende wird ein Rollback gemacht und die Datenbank bleibt dann im Seed-Zustand."
+  ],
+  "reflexion": [
+    "Der Bind-Mount vom ReFS-Laufwerk kam im Container nicht zuverlässig an, deshalb liegt die Init-Kette jetzt im Image.",
+    "Die erste Performance-Messung war durch JIT verzerrt (243 von 413 ms waren Kompilierung).",
+    "Der Healthcheck meldete „healthy“ über den Unix-Socket, bevor der Seed fertig war.",
+    "Bei der Selbstbewertung meldete der Trigger und nicht der CHECK, weil BEFORE-Trigger vor Constraints laufen.",
+    "Die Schnittmenge aus den vier Befunden ist, dass es alle Annahmen waren und erst der echte Lauf im Container sie widerlegt hat. Das Learning ist hier für künftige Projekte: Es soll geprüft werden anstatt angenommen, und das früh auf dem Zielrechner.",
+    "Ausblick Phase 3: Bericht mit Metadaten (Tabellen, Zeilen, Volumen), Abstract, GitHub-Repository."
+  ]
+}

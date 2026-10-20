@@ -1,0 +1,32 @@
+-- ===================================================================
+-- Titelsuche OHNE Index: 200.000 Titel in der Tabelle werk_perf,
+-- Suche nach ILIKE '%Turm und Spiegel%' (Treffer mitten im Titel).
+-- Zufalls-Seed 0.42, damit die Daten reproduzierbar sind.
+-- Aufgezeichnet ist der ZWEITE Lauf der Abfrage (warmer Cache), damit
+-- der Vergleich mit 02b nur den Plan misst. Serverkonfiguration
+-- unverändert (max_parallel_workers_per_gather = 2).
+-- Einzige Abweichung von der Standardkonfiguration: JIT ist für die
+-- Messung abgeschaltet (SET jit = off), damit die Zeit den Scan gegen
+-- den Index vergleicht und nicht das Übersetzen in Maschinencode.
+-- Messrechner: Intel Core Ultra 9 185H, 31 GB RAM, Docker Desktop 28.3.2, Windows 11, Container postgis/postgis:16-3.4
+-- ===================================================================
+                                                         postgresql                                                          | postgis |          gemessen_am          
+-----------------------------------------------------------------------------------------------------------------------------+---------+-------------------------------
+ PostgreSQL 16.4 (Debian 16.4-1.pgdg110+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit | 3.4.3   | 2026-09-19 12:38:46.522181+00
+(1 row)
+
+ treffer 
+---------
+     522
+(1 row)
+
+                                                 QUERY PLAN                                                 
+------------------------------------------------------------------------------------------------------------
+ Seq Scan on werk_perf  (cost=0.00..4694.00 rows=20 width=35) (actual time=0.837..187.326 rows=522 loops=1)
+   Filter: ((titel)::text ~~* '%Turm und Spiegel%'::text)
+   Rows Removed by Filter: 199478
+   Buffers: shared hit=2194
+ Planning Time: 0.266 ms
+ Execution Time: 187.397 ms
+(6 rows)
+

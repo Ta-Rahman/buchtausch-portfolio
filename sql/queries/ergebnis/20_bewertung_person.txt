@@ -1,0 +1,28 @@
+-- Frage: Wie wird jedes Mitglied im Schnitt bewertet — als verleihende und als ausleihende Person?
+-- Quelle: sql/queries/05_community.sql (@entitaet: bewertung_person), erzeugt mit tools/run_queries.py
+
+SET
+ benutzer_id |       mitglied       | schnitt_verleihend | bewertungen_verleihend | schnitt_ausleihend | bewertungen_ausleihend 
+-------------+----------------------+--------------------+------------------------+--------------------+------------------------
+           1 | Felicitas Dowerg     |               3.00 |                      1 |               5.00 |                      1
+           4 | Maja Beyer           |               4.00 |                      2 |                    |                      0
+           7 | Friederike Boucsein  |               3.50 |                      2 |                    |                      0
+           9 | Juan Bolzmann        |               4.00 |                      2 |                    |                      0
+          10 | Caroline Trupp       |                    |                      0 |               4.50 |                      2
+          11 | Stanislaw Säuberlich |               4.75 |                      4 |                    |                      0
+          16 | Janina Neureuther    |                    |                      0 |               4.00 |                      1
+          17 | Walentina Hahn       |               3.00 |                      1 |               3.00 |                      1
+          19 | Christos Pieper      |               4.00 |                      1 |                    |                      0
+          20 | Dominik Dietz        |                    |                      0 |               5.00 |                      3
+          22 | Gaby Reuter          |               5.00 |                      1 |                    |                      0
+          23 | Abram Krebs          |               5.00 |                      1 |                    |                      0
+          27 | Suse Weitzel         |               2.00 |                      1 |                    |                      0
+          31 | Marit Hofmann        |               4.00 |                      1 |                    |                      0
+          32 | Belinda Beier        |                    |                      0 |               4.50 |                      2
+          33 | Hanny Hering         |               3.50 |                      2 |               4.00 |                      1
+          35 | Lydia Staude         |               4.00 |                      1 |               2.00 |                      1
+          36 | Niels Jäkel          |               4.00 |                      1 |                    |                      0
+          37 | Florence Pechel      |                    |                      0 |               5.00 |                      2
+          40 | Rotraut Rust         |               5.00 |                      1 |                    |                      0
+(20 rows)
+

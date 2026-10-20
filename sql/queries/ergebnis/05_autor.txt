@@ -1,0 +1,16 @@
+-- Frage: Welche Autor:innen sind mit mehr als einem Werk vertreten, und wie viele Exemplare davon gibt es in der Nachbarschaft?
+-- Quelle: sql/queries/02_biblio.sql (@entitaet: autor), erzeugt mit tools/run_queries.py
+
+SET
+ autor_id |        autor_in        | werke | exemplare 
+----------+------------------------+-------+-----------
+       12 | Cornelia Funke         |     2 |         7
+       17 | Robert Seethaler       |     2 |         7
+        6 | Michael Ende           |     2 |         6
+       11 | Johann Wolfgang Goethe |     2 |         6
+        9 | Thomas Mann            |     2 |         4
+       38 | George Orwell          |     2 |         3
+       14 | Marc-Uwe Kling         |     2 |         2
+       31 | Astrid Lindgren        |     2 |         2
+(8 rows)
+

@@ -1,0 +1,16 @@
+-- Frage: Welche verfügbaren Exemplare von "Tintenherz" liegen im Umkreis von 2 km um Mitglied 7?
+-- Quelle: sql/queries/03_besitz.sql (@entitaet: exemplar), erzeugt mit tools/run_queries.py
+
+SET
+ exemplar_id |   titel    |         besitzer         |  zustand  | max_leihdauer_tage | versand_moeglich | entfernung_m 
+-------------+------------+--------------------------+-----------+--------------------+------------------+--------------
+           6 | Tintenherz | Juan Bolzmann            | gebraucht |                 21 | f                |         1387
+          42 | Tintenherz | Hans-Joachim Grein Groth | sehr gut  |                 28 | f                |         1906
+(2 rows)
+
+ exemplar_id |   titel    |    autoren     |         besitzer         |  zustand  | entfernung_m 
+-------------+------------+----------------+--------------------------+-----------+--------------
+           6 | Tintenherz | Cornelia Funke | Juan Bolzmann            | gebraucht |         1387
+          42 | Tintenherz | Cornelia Funke | Hans-Joachim Grein Groth | sehr gut  |         1906
+(2 rows)
+

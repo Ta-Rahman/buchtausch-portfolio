@@ -1,0 +1,11 @@
+-- Frage: Wie viele Personen hat jede Systemrolle — auch die Rollen ohne Zuordnung?
+-- Quelle: sql/queries/01_personen.sql (@entitaet: rolle), erzeugt mit tools/run_queries.py
+
+SET
+ rolle_id |  bezeichnung   |                   beschreibung                   | personen 
+----------+----------------+--------------------------------------------------+----------
+        1 | Mitglied       | Bücher einstellen, anfragen, ausleihen, bewerten |       40
+        2 | Moderation     | gemeldete Bewertungen prüfen, Konten sperren     |        3
+        3 | Administration | Stammdaten pflegen, Rollen vergeben              |        1
+(3 rows)
+

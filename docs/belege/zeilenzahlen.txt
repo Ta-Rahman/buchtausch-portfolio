@@ -1,0 +1,25 @@
+buchtausch=# -- Zeilen je Tabelle nach frischem Start
+     tabelle      | zeilen
+------------------+--------
+ benutzer         |     40
+ adresse          |     40
+ rolle            |      3
+ benutzer_rolle   |     44
+ autor            |     59
+ verlag           |     12
+ sprache          |     12
+ genre            |     12
+ werk             |     60
+ werk_autor       |     74
+ werk_genre       |     73
+ zustand          |      5
+ exemplar         |    120
+ zeitslot         |    231
+ uebergabeart     |      2
+ verfuegbarkeit   |    181
+ ausleihe         |     80
+ uebergabe        |     91
+ bewertung_werk   |     23
+ bewertung_person |     36
+ nachricht        |    159
+(21 rows)

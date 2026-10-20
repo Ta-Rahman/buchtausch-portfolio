@@ -1,0 +1,11 @@
+-- Frage: Wann und auf welchem Weg ist Exemplar 68 in den vier Wochen ab dem Stichtag 19.09.2026 übergebbar?
+-- Quelle: sql/queries/03_besitz.sql (@entitaet: verfuegbarkeit), erzeugt mit tools/run_queries.py
+
+SET
+ verfuegbarkeit_id |         beginn         |          ende          | uebergabeart |   titel    |    besitzer     
+-------------------+------------------------+------------------------+--------------+------------+-----------------
+               106 | 2026-10-08 16:00:00+02 | 2026-10-08 18:00:00+02 | Abholung     | L'Étranger | Siegbert Sontag
+               107 | 2026-10-08 16:00:00+02 | 2026-10-08 18:00:00+02 | Postversand  | L'Étranger | Siegbert Sontag
+               108 | 2026-10-09 10:00:00+02 | 2026-10-09 12:00:00+02 | Abholung     | L'Étranger | Siegbert Sontag
+(3 rows)
+

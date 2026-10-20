@@ -1,0 +1,17 @@
+-- Frage: Wie sieht der Posteingang aus: wer hat wie viele ungelesene Nachrichten, und welche ist die neueste?
+-- Quelle: sql/queries/05_community.sql (@entitaet: nachricht), erzeugt mit tools/run_queries.py
+
+SET
+ empfaenger_id |      empfaenger_in       | ungelesen |       neueste_am       |               neueste_nachricht               
+---------------+--------------------------+-----------+------------------------+-----------------------------------------------
+             4 | Maja Beyer               |         2 | 2026-10-02 07:37:00+02 | Passt, dann bis 18.10.!
+             6 | Grete Hethur             |         1 | 2026-09-28 07:28:00+02 | Ja, ist es. Abholung am 10.10. zwischen 18 un
+            10 | Caroline Trupp           |         2 | 2026-10-02 12:48:00+02 | Ich stehe vor der Tür, klingle jetzt.
+            21 | Hans-Joachim Grein Groth |         1 | 2026-05-20 10:00:00+02 | Wohnst du auch in Bornheim?
+            26 | Siegbert Sontag          |         2 | 2026-09-28 10:34:00+02 | Passt, dann bis 10.10.!
+            32 | Belinda Beier            |         1 | 2026-10-14 10:27:00+02 | Passt, dann bis 20.10.!
+            35 | Lydia Staude             |         1 | 2026-08-04 22:00:00+02 | Hast du zufällig noch andere Bücher von diese
+            37 | Florence Pechel          |         1 | 2026-08-22 09:00:00+02 | Danke für den Tipp neulich!
+            40 | Rotraut Rust             |         2 | 2026-10-14 06:51:00+02 | Ja, ist es. Abholung am 20.10. zwischen 18 un
+(9 rows)
+

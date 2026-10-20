@@ -1,0 +1,10 @@
+-- Frage: Wie verteilen sich die erfolgten Übergaben auf Abholung und Postversand, und was kostet der Versand im Schnitt?
+-- Quelle: sql/queries/03_besitz.sql (@entitaet: uebergabeart), erzeugt mit tools/run_queries.py
+
+SET
+ uebergabeart | erfolgte_uebergaben | anteil_prozent | versandkosten_schnitt 
+--------------+---------------------+----------------+-----------------------
+ Abholung     |                  71 |           85.5 |                      
+ Postversand  |                  12 |           14.5 |                  4.99
+(2 rows)
+

@@ -1,0 +1,47 @@
+# Buchtausch-App – lokale Entwicklungsdatenbank
+# Start:  docker compose up -d --build
+# Stopp:  docker compose down          (Daten bleiben erhalten)
+# Reset:  docker compose down -v; docker compose up -d --build
+#         (loescht das Volume, die Init-Skripte laufen neu)
+#
+# Die Init-Skripte stecken im Image (siehe Dockerfile) und nicht mehr in einem
+# Bind-Mount. Nach jeder Aenderung in sql/init/ ist --build deshalb Pflicht,
+# sonst startet der Container mit der alten Init-Kette.
+
+services:
+  db:
+    # Eigenes Image aus dem Dockerfile in diesem Verzeichnis. Der Tag sorgt
+    # dafuer, dass "docker images" einen lesbaren Namen statt einer ID zeigt.
+    build: .
+    image: buchtausch-db:16-3.4
+    container_name: buchtausch-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: buchtausch
+      POSTGRES_USER: buchtausch
+      POSTGRES_PASSWORD: buchtausch_dev
+      # Deutsche Sortierung (Umlaute) ueber die eingebaute ICU-Bibliothek statt
+      # einer System-Locale: das Image hat kein de_DE.utf8 installiert, ICU ist
+      # in PostgreSQL 16 enthalten und auf jedem Rechner identisch.
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=de-DE"
+    ports:
+      # Host-Port 5433, damit ein lokal laufendes PostgreSQL oder ein anderer
+      # Container auf 5432 nicht kollidiert. Im Container bleibt es 5432.
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # Prüfung 1 – fertiger Server: -h localhost erzwingt TCP. Den Unix-Socket bedient schon der
+      # temporäre Init-Server des Entrypoints, TCP erst der fertige Server.
+      # Prüfung 2 – Init vollständig: die Zeile in meta.init_status schreibt erst das letzte
+      # Init-Skript 08_init_abschluss.sql; bricht ein früheres Skript ab, fehlt sie für immer.
+      # psql geht über den Unix-Socket (pg_hba.conf: local trust, kein Passwort nötig);
+      # grep -qx 1 verlangt genau die Ausgabe 1 – leere Ausgabe oder Fehler zählen als krank.
+      # Beide Prüfungen müssen gelingen (&&).
+      test: ["CMD-SHELL", "pg_isready -h localhost -U buchtausch -d buchtausch && psql -U buchtausch -d buchtausch -tAc 'SELECT 1 FROM meta.init_status WHERE abgeschlossen' | grep -qx 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:

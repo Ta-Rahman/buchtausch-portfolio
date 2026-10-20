@@ -1,0 +1,21 @@
+-- Frage: Welche Werke sind in mehr als einem Genre eingeordnet?
+-- Quelle: sql/queries/02_biblio.sql (@entitaet: werk_genre), erzeugt mit tools/run_queries.py
+
+SET
+ werk_id |                titel                 | genres |       genreliste       
+---------+--------------------------------------+--------+------------------------
+      44 | 1984                                 |      2 | Roman, Science-Fiction
+       4 | Das Parfum                           |      2 | Krimi, Roman
+      28 | Der Ernährungskompass                |      2 | Ratgeber, Sachbuch
+       8 | Der Schwarm                          |      2 | Roman, Science-Fiction
+      32 | Die Schlafwandler                    |      2 | Geschichte, Sachbuch
+       6 | Die unendliche Geschichte            |      2 | Fantasy, Kinderbuch
+      21 | Die Vermessung der Welt              |      2 | Geschichte, Roman
+      33 | Eine kurze Geschichte der Menschheit |      2 | Geschichte, Sachbuch
+      29 | Ich bin dann mal weg                 |      2 | Biografie, Reise
+      58 | Il nome della rosa                   |      2 | Krimi, Roman
+      41 | Maus                                 |      2 | Comic, Geschichte
+      40 | Persepolis                           |      2 | Biografie, Comic
+      16 | Tintenherz                           |      2 | Fantasy, Kinderbuch
+(13 rows)
+

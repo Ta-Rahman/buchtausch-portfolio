@@ -1,0 +1,14 @@
+# PostgreSQL 16.4 (Debian 16.4-1.pgdg110+2), PostGIS 3.4.3
+# Messrechner: Intel Core Ultra 9 185H, 31 GB RAM, Docker Desktop 28.3.2, Windows 11, Container postgis/postgis:16-3.4
+# Gemessen am: 2026-10-20 11:30 (Europe/Berlin)
+# jit = off, warmer Cache; Serverkonfiguration sonst unverändert (max_parallel_workers_per_gather = 2, shared_buffers = 128MB)
+# Median aus fünf Wiederholungen nach einem Aufwärmlauf (die 200k-Textbelege in diesem Ordner zeigen dagegen den zweiten Lauf)
+# Wiederholungen: Planknoten, Treffer und Buffers je Stufe in allen fünf Messungen gleich
+# Wiederholung: gegenüber dem Lauf vom 2026-10-15 02:11 (Europe/Berlin) sind Planknoten, Treffer, Tabellen- und Indexgrößen identisch. Zeiten und Buffers laufabhängig. Faktoren nur innerhalb dieser Datei vergleichen.
+# Quelle: sql/perf/02_trigramsuche.sql, erzeugt mit tools/run_perf.py — nicht von Hand ändern
+zeilen,treffer,zeit_ohne_ms,plan_ohne,zeit_mit_ms,plan_mit,faktor,tabelle_groesse,index_groesse,hit_ohne,read_ohne,hit_mit,read_mit
+1000,2,1.364,Seq Scan,1.149,Seq Scan,1.2,90112,73728,11,0,11,0
+10000,24,15.874,Seq Scan,0.768,Bitmap Heap Scan,20.7,901120,581632,110,0,87,0
+100000,260,179.083,Seq Scan,17.283,Bitmap Heap Scan,10.4,8986624,5070848,1097,0,582,0
+200000,522,359.443,Seq Scan,31.659,Bitmap Heap Scan,11.4,17973248,8019968,2194,0,1120,0
+1000000,2550,642.716,Parallel Seq Scan,98.524,Bitmap Heap Scan,6.5,89841664,33226752,10967,0,5431,0

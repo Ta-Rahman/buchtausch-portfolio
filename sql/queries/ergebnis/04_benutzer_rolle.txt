@@ -1,0 +1,12 @@
+-- Frage: Welche Personen haben mehr als eine Rolle, und welche sind es?
+-- Quelle: sql/queries/01_personen.sql (@entitaet: benutzer_rolle), erzeugt mit tools/run_queries.py
+
+SET
+ benutzer_id |     mitglied     | rollen |       rollenliste        
+-------------+------------------+--------+--------------------------
+           1 | Felicitas Dowerg |      2 | Administration, Mitglied
+           3 | Hilda Löchel     |      2 | Mitglied, Moderation
+          17 | Walentina Hahn   |      2 | Mitglied, Moderation
+          25 | Charles Scheibe  |      2 | Mitglied, Moderation
+(4 rows)
+

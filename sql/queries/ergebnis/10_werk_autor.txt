@@ -1,0 +1,21 @@
+-- Frage: Welche Werke haben neben der Verfasserschaft eine Übersetzung oder Herausgabe, und wer steht jeweils dahinter?
+-- Quelle: sql/queries/02_biblio.sql (@entitaet: werk_autor), erzeugt mit tools/run_queries.py
+
+SET
+ werk_id |                            titel                             |          verfasst_von           | herausgegeben_von | uebersetzt_von 
+---------+--------------------------------------------------------------+---------------------------------+-------------------+----------------
+      30 | Buch der Lieder                                              | Heinrich Heine                  | Minna Ebert       | 
+      32 | Die Schlafwandler                                            | Christopher Clark               |                   | Irmhild Jacob
+      33 | Eine kurze Geschichte der Menschheit                         | Yuval Noah Harari               |                   | Mathias Kusch
+      34 | Der Marsianer                                                | Andy Weir                       |                   | Lukas Spieß
+      35 | Kafka am Strand                                              | Haruki Murakami                 |                   | Minna Ebert
+      36 | Der Hundertjährige, der aus dem Fenster stieg und verschwand | Jonas Jonasson                  |                   | Mathias Kusch
+      37 | Pippi Langstrumpf                                            | Astrid Lindgren                 |                   | Amelie Jessel
+      38 | Ronja Räubertochter                                          | Astrid Lindgren                 |                   | Minna Ebert
+      39 | Der Grüffelo                                                 | Julia Donaldson, Axel Scheffler |                   | Gitte Lange
+      40 | Persepolis                                                   | Marjane Satrapi                 |                   | Mathias Kusch
+      41 | Maus                                                         | Art Spiegelman                  |                   | Irmhild Jacob
+      42 | Mord im Orientexpress                                        | Agatha Christie                 |                   | Irmhild Jacob
+      43 | Der Hund von Baskerville                                     | Arthur Conan Doyle              |                   | Minna Ebert
+(13 rows)
+

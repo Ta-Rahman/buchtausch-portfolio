@@ -1,0 +1,24 @@
+# Was der Build-Kontext nicht braucht. Ins Image wandert ausschließlich die
+# Init-Kette aus sql/init/ (siehe COPY im Dockerfile); alles hier Aufgeführte
+# wird gar nicht erst an den Docker-Daemon geschickt.
+
+# Versionsgeschichte
+.git/
+
+# Dokumentation und Planung; abgabe/ enthält die Matrikelnummer im Dateinamen
+docs/
+planung/
+abgabe/
+*.md
+
+# Generatoren laufen auf dem Host, nicht im Container
+tools/
+node_modules/
+__pycache__/
+*.pyc
+
+# SQL, das bewusst NICHT beim Containerstart laufen soll
+sql/perf/
+sql/queries/
+sql/meta/
+sql/tests/
