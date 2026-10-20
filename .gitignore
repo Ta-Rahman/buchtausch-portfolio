@@ -7,7 +7,7 @@ node_modules/
 
 # Abgabedateien enthalten die Matrikelnummer im Dateinamen — bleiben lokal
 abgabe/
-# Matrikelnummer für Titelfolie, KZ- und SQL-Dokumentations-Kopfzeile (gelesen von build_slides.py, build_kz.py, build_sqlpdf.py)
+# Matrikelnummer für Titelfolie, KZ-, SQL-Dokumentations- und Link-Seiten-Kopfzeile (gelesen von build_slides.py, build_kz.py, build_sqlpdf.py, build_gh.py)
 tools/titel_lokal.json
 
 # Word-Sperrdateien und Betriebssystem-Reste

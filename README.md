@@ -69,7 +69,8 @@ docker cp buchtausch-db:/tmp/metadaten.txt docs/belege/metadaten.txt
 | `tools/build_kz.py` | Erzeugt die Kurzzusammenfassung (`_KZ`) der Phase 2 als Word-Datei aus demselben Text wie Folie 35/36 |
 | `tools/build_sql.py` | Erzeugt die SQL-Abgabedatei (`abgabe/03_Finalisierungsphase/Abschlussphase_SQL.sql`): Teil A `sql/init/`, Teil B `sql/queries/` und Teil D `sql/meta/` verbatim, Teil C `sql/perf/` ohne psql-Metabefehle |
 | `tools/build_sqlpdf.py` | Erzeugt die SQL-Dokumentation mit Installationsanleitung (`_SQL`) als Word-Datei aus README-Schnellstart, `sql/` und `docs/belege/`; Inhaltsverzeichnis und PDF über Word |
-| `tools/titel_lokal.json` | **Nicht im Repo** (gitignoriert): `{"matrikel": "…"}` für Titelfolie, KZ- und SQL-Dokumentations-Kopfzeile; fehlt die Datei, zeigt das Deck einen Platzhalter, `build_kz.py` und `build_sqlpdf.py` brechen ab |
+| `tools/build_gh.py` | Erzeugt die Seite mit dem Link zum GitHub-Repository (`_GH`) als Word-Datei; PDF über Word |
+| `tools/titel_lokal.json` | **Nicht im Repo** (gitignoriert): `{"matrikel": "…"}` für Titelfolie, KZ-, SQL-Dokumentations- und Link-Seiten-Kopfzeile; fehlt die Datei, zeigt das Deck einen Platzhalter, `build_kz.py`, `build_sqlpdf.py` und `build_gh.py` brechen ab |
 | `sql/init/` | Läuft beim ersten Containerstart automatisch, in Nummernreihenfolge (s. u.) |
 | `sql/queries/` | Je Entität eine dokumentierte Fachabfrage mit Kopfblock, Ergebnisbelege in `sql/queries/ergebnis/` |
 | `Dockerfile` | Basis-Image `postgis/postgis:16-3.4` plus die Init-Kette aus `sql/init/` |
